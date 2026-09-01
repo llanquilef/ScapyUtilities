@@ -2,6 +2,7 @@
 from scapy.layers.inet import IP, TCP, ICMP
 from scapy.all import (send,
                        conf,
+                       hexdump,
                        RawVal
                        )
 from logger import Logger
@@ -18,14 +19,19 @@ IP_DST = os.getenv('ip_dst')
 
 
 class PacketManager():
+    """ PACKET MANAGER CLASS"""
     def __init__(self):
         pass
 
     def create_packet(self):
-        packet = IP(ttl=10, dst=os.environ.get('ip_dst'))
-        print(packet)
+        """ CREATE PACKET """
+        packet = IP(ttl=10, dst=os.getenv('ip_dst'))
         return packet
 
+    def show(self):
+        pkt = self.create_packet()
+        return pkt.show()
+    
     def stacking_layer(self):
         print(IP()/TCP())
         return IP()/TCP()
@@ -38,11 +44,13 @@ class PacketManager():
             )  # x -> Refers to PacketIterable
 
     def inject_bytes(self):
+        """ INJECT BYTES """
         pkt = IP(len=RawVal(b"WHATUPPP"), src="127.0.0.1")
         return bytes(pkt)
-    # def hexdump_ip(self):
-    #     packet = self.create_packet()
-    #     return hexdump(packet)i
+
+    def hexdump(self):
+        packet = self.create_packet()
+        return hexdump(packet)
 
     def log(self):
         with open('log.txt', 'w', encoding='utf-8') as log:
@@ -51,13 +59,15 @@ class PacketManager():
 
 
 def main():
+    """ MAIN FUNCTION """
     try:
         PM = PacketManager()
         dict_options: dict = {
             1: PM.create_packet,
             2: PM.stacking_layer,
             3: PM.send_packet,
-            4: PM.inject_bytes
+            4: PM.inject_bytes,
+            5: PM.hexdump
         }
         # election = input("""
         # ****** OPTIONS ****** \n
