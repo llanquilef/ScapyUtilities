@@ -19,21 +19,31 @@ class Sniffer():
     def parser(self):
         """ PARSER """
         parser = argparse.ArgumentParser(description="Sniffer TCP and UDP for specifics IP's")
-        parser.add_argument("-f", "--filter",
-                            type=str,
-                            choices=["udp", "tcp", "icmp", "arp"],
-                            default="",
-                            help="Filter for your report: TCP, UDP, ICMP"
-                            )
+        try:
+            parser.add_argument("-f", "--filter",
+                                type=str,
+                                choices=["udp", "tcp", "icmp", "arp"],
+                                default="",
+                                help="Filter for your report: TCP, UDP, ICMP"
+                                )
 
-        parser.add_argument("-i", "--ifaces", type=str, nargs="+",
-                            help="Interfaces that you need to scan")
+            parser.add_argument("-i", "--ifaces", type=str, nargs="+",
+                                help="Interfaces that you need to scan")
 
-        parser.add_argument("-c", "--count", type=int,
-                            help="How many packets you want to review"
-                            )
-        args = vars(parser.parse_args())
-        return args
+            parser.add_argument("-c", "--count", type=int,
+                                help="How many packets you want to review"
+                                )
+            return parser
+        except argparse.ArgumentError as e:
+            print(e)
+
+    def dict_parser(self):
+        try:
+            parser = self.parser()
+            args = parser.parse_args()
+            return vars(args)
+        except Exception as e:
+            print(e)
 
 
 def main():
@@ -43,7 +53,7 @@ def main():
     logger.setLevel()
     try:
         sniffer = Sniffer()
-        args = sniffer.parser()
+        args = sniffer.dict_parser()
         print(args)
         sniffer.sniffer(filter=args.get('filter'),
                         ifaces=args.get('ifaces'),
