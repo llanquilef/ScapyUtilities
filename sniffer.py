@@ -1,35 +1,54 @@
+import argparse
 from scapy.all import (
     sniff
-)
+    )
 from logger import Logger
-from server import PacketManager
-
-logger = Logger()
-logger.setLevel()
 
 
 class Sniffer():
     def __init__(self):
         pass
 
-    def sniffer(self):
-        pkt = PacketManager()
-        ifaces = ["wlp0s20f3", "enp0s31f6", "lo"]
-        print(sniff(iface=[i for i in ifaces],
-                    prn=pkt.show(),
-                    count=40
-                    ))
+    def sniffer(self, ifaces: str,
+                count: int, filter: str):
+        """ SNIFFER """
+        sniffing = sniff(filter=filter, iface=[i for i in ifaces],
+                         prn=lambda pkt: pkt.show(), count=count)
+        return sniffing
+
+    def parser(self):
+        """ PARSER """
+        parser = argparse.ArgumentParser(description="Sniffer TCP and UDP for specifics IP's")
+        parser.add_argument("-f", "--filter",
+                            type=str,
+                            choices=["udp", "tcp", "icmp", "arp"],
+                            default="",
+                            help="Filter for your report: TCP, UDP, ICMP"
+                            )
+
+        parser.add_argument("-i", "--ifaces", type=str, nargs="+",
+                            help="Interfaces that you need to scan")
+
+        parser.add_argument("-c", "--count", type=int,
+                            help="How many packets you want to review"
+                            )
+        args = vars(parser.parse_args())
+        return args
 
 
 def main():
+    """ MAIN FUNCTION """
+    logger = Logger()
+    logger.get_logger()
+    logger.setLevel()
     try:
         sniffer = Sniffer()
-        options: dict = {
-            1: sniffer.sniffer
-        }
-        for option, func in options.items():
-            if func:
-                func() 
+        args = sniffer.parser()
+        print(args)
+        sniffer.sniffer(filter=args.get('filter'),
+                        ifaces=args.get('ifaces'),
+                        count=args.get('count'),
+                        )
     except Exception as e:
         print(e)
 
