@@ -1,3 +1,5 @@
+""" SNIFFER """
+import sys
 import argparse
 from scapy.all import (
     sniff
@@ -6,23 +8,25 @@ from logger import Logger
 
 
 class Sniffer():
+    """ SNIFFER """
     def __init__(self):
         pass
 
-    def sniffer(self, ifaces: str,
-                count: int, filter: str):
+    def sniffer(self, ifaces: str, count: int, filter: str):
         """ SNIFFER """
-        sniffing = sniff(filter=filter, iface=[i for i in ifaces],
+        sniffing = sniff(filter=filter, iface=ifaces,
                          prn=lambda pkt: pkt.show(), count=count)
         return sniffing
 
     def parser(self):
         """ PARSER """
-        parser = argparse.ArgumentParser(description="Sniffer TCP and UDP for specifics IP's")
+        parser = argparse.ArgumentParser(
+            description="Sniffer TCP and UDP for specifics IP's"
+            )
         try:
             parser.add_argument("-f", "--filter",
                                 type=str,
-                                choices=["udp", "tcp", "icmp", "arp"],
+                                choices=["", "udp", "tcp", "icmp", "arp"],
                                 default="",
                                 help="Filter for your report: TCP, UDP, ICMP"
                                 )
@@ -36,6 +40,7 @@ class Sniffer():
             return parser
         except argparse.ArgumentError as e:
             print(e)
+            sys.exit(1)
 
     def dict_parser(self):
         try:
