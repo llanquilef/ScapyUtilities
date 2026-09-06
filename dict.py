@@ -1,12 +1,4 @@
-""" SNIFFER """
 from typing import Any
-import sys
-import argparse
-from scapy.all import (
-    sniff
-    )
-from logger import Logger
-
 
 dict_configuration: dict[str, Any] = {
     "sniffer": {
@@ -63,7 +55,6 @@ dict_configuration: dict[str, Any] = {
             "command": "-s",
             "reference": "--src",
             "type": str,
-            "required": True,
         },
         4: {
             "command": "-f",
@@ -80,7 +71,7 @@ dict_configuration: dict[str, Any] = {
             "reference": "--dst",
             "type": str,
             "help": "Direction Port For Scanning"
-        },
+        },        
         2: {
             "command": "-sp",
             "reference": "--sport",
@@ -93,73 +84,13 @@ dict_configuration: dict[str, Any] = {
             "type": int,
             "nargs": "+",
             "help": "Direction Port For Scanning"
+        },
+        4: {
+            "command": "-p",
+            "reference": "--ports",
+            "type": int,
+            "nargs": "+",
+            "help": "Ports to review"
         }
     }
 }
-
-
-class Sniffer():
-    """ SNIFFER """
-    def __init__(self):
-        pass
-
-    def sniffer(self, ifaces: str, count: int, filter: str):
-        """ SNIFFER """
-        sniffing = sniff(filter=filter, iface=ifaces,
-                         prn=lambda pkt: pkt.show(), count=count)
-        return sniffing
-
-    def parser(self):
-        """ PARSER """
-        parser = argparse.ArgumentParser(
-            description="Sniffer TCP and UDP for specifics IP's"
-            )
-        try:
-            parser.add_argument(
-                dict_configuration["sniffer"][1]["command"],
-                dict_configuration["sniffer"][1]["reference"],
-                type=dict_configuration["sniffer"][1]["type"],
-                choices=dict_configuration["sniffer"][1]["choices"],
-                default=dict_configuration["sniffer"][1]["default"],
-                help=dict_configuration["sniffer"][1]["help"]
-                )
-
-            parser.add_argument("-i", "--ifaces", type=str, nargs="+",
-                                help="Interfaces that you need to scan")
-
-            parser.add_argument("-c", "--count", type=int,
-                                help="How many packets you want to review"
-                                )
-            return parser
-        except argparse.ArgumentError as e:
-            print(e)
-            sys.exit(1)
-
-    def dict_parser(self):
-        try:
-            parser = self.parser()
-            args = parser.parse_args()
-            return vars(args)
-        except Exception as e:
-            print(e)
-
-
-def main():
-    """ MAIN FUNCTION """
-    logger = Logger()
-    logger.get_logger()
-    logger.setLevel()
-    try:
-        sniffer = Sniffer()
-        args = sniffer.dict_parser()
-        print(args)
-        sniffer.sniffer(filter=args.get('filter'),
-                        ifaces=args.get('ifaces'),
-                        count=args.get('count'),
-                        )
-    except Exception as e:
-        print(e)
-
-
-if __name__ == "__main__":
-    main()
