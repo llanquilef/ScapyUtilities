@@ -9,9 +9,7 @@ from dict import dict_configuration
 import argparse
 
 
-logger = Logger()
-logger.get_logger()
-logger.setLevel()
+
 load_dotenv()
 
 
@@ -55,6 +53,9 @@ class Scanner():
 def main():
     """ MAIN FUNCTION """
     try:
+        logger = Logger()
+        logger.get_logger()
+        logger.setLevel()
         scanner = Scanner()
         args = scanner.parser()
         scanner.syn_scan(dst=args.get('dst'),
