@@ -10,6 +10,14 @@ class ARPManager():
         self.gateway = None
         self.broadcast_mac = "ff:ff:ff:ff:ff:ff"
         self.hosts = []
+        self.logger = logging.getLogger(__class__.__name__)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s - %(processName)s "
+            )
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        self.logger.setLevel(logging.INFO)
 
     def parser(self) -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser()
@@ -33,20 +41,22 @@ class ARPManager():
 
     def network_scanner(self, timeout=2):
         try:
+            self.logger.info('Starting network scanner...')
             args = self.dict_parser()
             pkt = self.arp_packet()
             ans, unans = srp(pkt, timeout=timeout,
-                             iface=args.get('iface') if args else 'wlp0s20f3',
+                             iface=args.get('iface'),
                              inter=0.1, verbose=False
                              )
             for s, r in ans:
                 ip = r[ARP].psrc
                 mac = r[Ether].src
                 self.hosts.append((ip, mac))
-                print(self.hosts)
+            self.logger.info("Hosts: %s", self.hosts)
+            self.logger.info("Network Scanning Finished")
             return self.hosts
         except TimeoutError:
-            pass
+            self.logger.error("Timeout Error")
 
     def dict_host(self):
         hosts = self.network_scanner()
@@ -61,12 +71,8 @@ class ARPManager():
 
 
 def main():
-    logger = logging.getLogger('arp')
     arp = ARPManager()
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
-    logger.info('Started....')
     arp.dict_host()
-    logger.info('Finished...')
 
 
 if __name__ == "__main__":
