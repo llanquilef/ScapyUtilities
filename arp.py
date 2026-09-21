@@ -1,7 +1,7 @@
 import argparse
 from scapy.all import (srp)
 from scapy.layers.l2 import Ether, ARP
-
+import logging
 
 
 class ARPManager():
@@ -48,10 +48,25 @@ class ARPManager():
         except TimeoutError:
             pass
 
+    def dict_host(self):
+        hosts = self.network_scanner()
+        results = {
+            "IP": [],
+            "MAC": []
+        }
+        for ip, mac in hosts:
+            results["IP"].append(ip)
+            results["MAC"].append(mac)
+        return results
+
 
 def main():
+    logger = logging.getLogger('arp')
     arp = ARPManager()
-    arp.network_scanner()
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+    logger.info('Started....')
+    arp.dict_host()
+    logger.info('Finished...')
 
 
 if __name__ == "__main__":
