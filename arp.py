@@ -52,13 +52,12 @@ class ARPManager():
                 ip = r[ARP].psrc
                 mac = r[Ether].src
                 self.hosts.append((ip, mac))
-            self.logger.info("Hosts: %s", self.hosts)
             self.logger.info("Network Scanning Finished")
             return self.hosts
         except TimeoutError:
             self.logger.error("Timeout Error")
 
-    def dict_host(self):
+    def store(self):
         hosts = self.network_scanner()
         results = {
             "IP": [],
@@ -67,12 +66,14 @@ class ARPManager():
         for ip, mac in hosts:
             results["IP"].append(ip)
             results["MAC"].append(mac)
+        self.logger.info("Storing Results...")
+        self.logger.info("Hosts: %s", results)
         return results
 
 
 def main():
     arp = ARPManager()
-    arp.dict_host()
+    arp.store()
 
 
 if __name__ == "__main__":
