@@ -1,7 +1,7 @@
 import argparse
 from scapy.all import (srp)
 from scapy.layers.l2 import Ether, ARP
-import logging
+from logger import setup_logger
 
 
 class ARPManager():
@@ -9,15 +9,8 @@ class ARPManager():
         self.target = None
         self.gateway = None
         self.broadcast_mac = "ff:ff:ff:ff:ff:ff"
-        self.hosts = []
-        self.logger = logging.getLogger(__class__.__name__)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(message)s - %(processName)s "
-            )
-        handler = logging.StreamHandler()
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
+        self.hosts = {}
+        self.logger = setup_logger()
 
     def parser(self) -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser()
@@ -51,29 +44,30 @@ class ARPManager():
             for s, r in ans:
                 ip = r[ARP].psrc
                 mac = r[Ether].src
-                self.hosts.append((ip, mac))
+                self.hosts[ip] = mac
+            self.logger.info("Hosts: %s", self.hosts)
             self.logger.info("Network Scanning Finished")
             return self.hosts
         except TimeoutError:
             self.logger.error("Timeout Error")
 
-    def store(self):
-        hosts = self.network_scanner()
-        results = {
-            "IP": [],
-            "MAC": []
-        }
-        for ip, mac in hosts:
-            results["IP"].append(ip)
-            results["MAC"].append(mac)
-        self.logger.info("Storing Results...")
-        self.logger.info("Hosts: %s", results)
-        return results
+    # def store(self):
+    #     hosts = self.network_scanner()
+    #     results = {
+    #         "IP": [],
+    #         "MAC": []
+    #     }
+    #     for ip, mac in hosts:
+    #         results["IP"].append(ip)
+    #         results["MAC"].append(mac)
+    #     self.logger.info("Storing Results...")
+    #     self.logger.info("Hosts: %s", results)
+    #     return results
 
 
 def main():
     arp = ARPManager()
-    arp.store()
+    arp.network_scanner()
 
 
 if __name__ == "__main__":

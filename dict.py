@@ -6,7 +6,7 @@ dict_configuration: dict[str, Any] = {
             "command": "-f",
             "reference": "--filter",
             "type": str,
-            "choices": ["", "tcp", "udp", "icmp"],
+            "choices": ["tcp", "udp", "icmp"],
             "default": "",
             "help": "Filter for your report: TCP, UDP, ICMP, ("" -> Stands for general)"
             },
@@ -27,6 +27,7 @@ dict_configuration: dict[str, Any] = {
     "scanner": {
         1: {
             "command": "-ip",
+            "reference": "--dst",
             "type": str,
             "help": "IP Address Destiny"
         },

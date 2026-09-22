@@ -1,14 +1,12 @@
+import argparse
 from typing import Any
 from scapy.all import (
     sr1
 )
 from scapy.layers.inet import IP, TCP
 from dotenv import load_dotenv
-from logger import Logger
 from dict import dict_configuration
-import argparse
-
-
+from logger import setup_logger
 
 load_dotenv()
 
@@ -16,11 +14,12 @@ load_dotenv()
 class Scanner():
     """ SCANNER """
     def __init__(self):
-        pass
+        self.logger = setup_logger()
 
     def syn_scan(self, dst: str, dport: int):
         """ SYN SCANNER """
         try:
+            self.logger.info("Starting Syn Scan")
             scan = sr1(IP(dst=dst)/TCP(dport=dport, flags="S"))
             return scan
         except TypeError as e:
@@ -53,9 +52,6 @@ class Scanner():
 def main():
     """ MAIN FUNCTION """
     try:
-        logger = Logger()
-        logger.get_logger()
-        logger.setLevel()
         scanner = Scanner()
         args = scanner.parser()
         scanner.syn_scan(dst=args.get('dst'),
